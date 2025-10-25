@@ -7,5 +7,14 @@ def emotion_detector(text_to_analyse):
     Headers = {"grpc-metadata-mm-model-id": "emotion_aggregated-workflow_lang_en_stock"}
     obj = { "raw_document": { "text": text_to_analyse } }
     resp = requests.post(URL, json = obj, headers = Headers)
-    form_resp = json.loads(resp.text)
-    return form_resp
+    resp1 = resp.text
+    formatted_resp = json.loads(resp1)
+
+    if resp.status_code == 400:
+        result = None
+    elif resp.status_code == 200:
+        result = None
+    else:
+        result = formatted_resp["emotionPredictions"][0]["emotion"]
+
+    return result

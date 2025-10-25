@@ -1,8 +1,35 @@
+"""
+This is server file
+"""
+from flask import Flask, render_template, request
+from EmotionDetection.emotion_detection import emotion_detector
 
-def emotion_detector(text_to_analyse):
-    URL = 'https://sn-watson-emotion.labs.skills.network/v1/watson.runtime.nlp.v1/NlpService/EmotionPredict'
-    Headers = {"grpc-metadata-mm-model-id": "emotion_aggregated-workflow_lang_en_stock"}
-    obj = { "raw_document": { "text": text_to_analyse } }
-    resp = requests.post(URL, json = obj, headers = Headers)
-    form_resp = json.loads(resp.test)
-    return form_r
+
+app = Flask("App")
+
+@app.route("/emotionDetector")
+def emotion_analyser():
+    """
+    emotionDetector function
+    """
+    text = request.args.get("textToAnalyze")
+    res = emotion_detector(text)
+
+    if res is None:
+        final_result = "Invalid text! Please try again!."
+    else:
+        emotion = max(res, key = res.get)
+        prefix = "For the given statement, the system response is "
+        res = str(res).strip("{}")
+        final_result = prefix + res + " The dominant emotion is " + emotion
+    return final_result
+
+@app.route("/")
+def return_res():
+    """
+    default page
+    """
+    return render_template("index.html")
+
+if __name__ == "__main__":
+    app.run(host = "0.0.0.0", port = 5000)
